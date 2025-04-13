@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
+  console.log("BODY:", req.body);
   if (!originalURL) {
     res.status(400).json({
       message: "URL is required",

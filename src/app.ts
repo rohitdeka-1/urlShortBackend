@@ -24,7 +24,7 @@ app.use(express.urlencoded({extended:true}))
 import { urlRoute } from "./routes/url.route";
 import { linkRedirector } from "./controllers/url.controller";
 
-app.use("/url",urlRoute);
-app.get("/:nanoId",linkRedirector)
+app.use("/url", urlRoute);
+app.get("/:nanoId", linkRedirector)
 
 export {app}
