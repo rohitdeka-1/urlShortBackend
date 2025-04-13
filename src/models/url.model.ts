@@ -14,8 +14,8 @@ const urlSchema = new Schema(
         },
         visitHistory: [{
             timeStamp: {
-                type: String,
-                default: () => new Date().toISOString()
+                type: Date,
+                default: new Date(),
             }
         }],
         visitedCount:{

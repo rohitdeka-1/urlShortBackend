@@ -41,7 +41,7 @@ const linkRedirector = async (req: Request, res: Response): Promise<void> => {
     },
     {
       $push: {
-        visitHistory: [{ timeStamp: Date.now().toString() }],
+        visitHistory: [{ timeStamp: new Date()  }],
       },
       $inc: {
         visitedCount: 1,
