@@ -11,24 +11,33 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
     });
   }
 
-  const nanoID = nanoid(5);
+  const existedURL = await Url.findOne({ redirectURL: originalURL });
 
-  const entry = await Url.create({
-    shortId: nanoID,
-    redirectURL: originalURL,
-    visitHistory: [],
-    visitedCount: 0,
-  });
+  if (!existedURL) {
+    const nanoID = nanoid(5);
 
-  if (!entry) {
-    res.status(401).json({
-      message: "Error with DB",
+    const entry = await Url.create({
+      shortId: nanoID,
+      redirectURL: originalURL,
+      visitHistory: [],
+      visitedCount: 0,
+    });
+
+    if (!entry) {
+      res.status(401).json({
+        message: "Error with DB",
+      });
+    }
+
+    res.status(200).json({
+      message: "Saved",
+      id: entry.shortId,
     });
   }
 
   res.status(200).json({
-    message: "Saved",
-    id: entry.shortId,
+    message: "already exists",
+    id: existedURL?.shortId,
   });
 };
 
@@ -37,11 +46,11 @@ const linkRedirector = async (req: Request, res: Response): Promise<void> => {
 
   const entry = await Url.findOneAndUpdate(
     {
-      shortId:nanoId,
+      shortId: nanoId,
     },
     {
       $push: {
-        visitHistory: [{ timeStamp: new Date()  }],
+        visitHistory: [{ timeStamp: new Date() }],
       },
       $inc: {
         visitedCount: 1,
@@ -49,10 +58,9 @@ const linkRedirector = async (req: Request, res: Response): Promise<void> => {
     }
   );
 
-
-  if(!entry){
+  if (!entry) {
     res.status(404).json({
-      message: "Short URL not found"
+      message: "Short URL not found",
     });
     return;
   }
@@ -60,4 +68,3 @@ const linkRedirector = async (req: Request, res: Response): Promise<void> => {
   res.redirect(entry.redirectURL);
 };
 export { linkShortener, linkRedirector };
-
