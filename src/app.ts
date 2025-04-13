@@ -5,7 +5,7 @@ dotenv.config()
 const app = express();
 
 const corsOptions = {
-    origin:["http://localhost:5173","http://localhost:3000"],
+    origin:["https://url-shortner-frontend-nx4y.vercel.app/","https://urlshortbackend-2phu.onrender.com/"],
     methods:["GET","POST"],
         Credentials: true
     
