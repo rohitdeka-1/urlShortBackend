@@ -8,20 +8,20 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
   console.log("BODY:", req.body);
   if (!originalURL) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "URL is required",
     });
   }
   const url = new URL(originalURL);
 
   if(!protocolChecker(url)){
-    res.status(400).json({
+    return res.status(400).json({
       "message":"Invald protocol",
       "code": "INVALID_PROTOCOL"
     })
   }
 
-  dns.resolve(url.hostname, async (err) => {
+  await dns.resolve(url.hostname, async (err) => {
     if (!err) {
       const existedURL = await Url.findOne({ redirectURL: originalURL });
 
@@ -41,13 +41,13 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
           });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
           message: "Saved",
           id: entry.shortId,
         });
       }
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "already exists",
         id: existedURL?.shortId,
       });
