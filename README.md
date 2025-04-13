@@ -74,11 +74,11 @@ npm run dev
 - `PORT` - Port number for the server (default: 3000)
 
 ## Project Structure
-src/
+```src/
 ├── controllers/
 │ └── url.controller.ts
 ├── models/
 │ └── url.model.ts
 ├── routes/
 │ └── url.routes.ts
-└── index.ts
+└── index.ts```
