@@ -2,6 +2,7 @@ import Url from "../models/url.model";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 import dns from "dns";
+import protocolChecker from "../utils/protocols";
 
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
@@ -13,6 +14,12 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
   }
   const url = new URL(originalURL);
 
+  if(!protocolChecker(url)){
+    res.status(400).json({
+      "message":"Invald protocol",
+      "code": "INVALID_PROTOCOL"
+    })
+  }
 
   dns.resolve(url.hostname, async (err) => {
     if (!err) {
