@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 import dns from "dns";
 
-
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
   console.log("BODY:", req.body);
@@ -12,46 +11,46 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
       message: "URL is required",
     });
   }
+  const url = new URL(originalURL);
 
-  dns.lookup(originalURL,(err)=>{
-    if(err){
-      res.status(406).json({
-        "message" : "URL doesnt exists",
-      })
-    }
-  })
 
-  const existedURL = await Url.findOne({ redirectURL: originalURL });
+  dns.resolve(url.hostname, async (err) => {
+    if (!err) {
+      const existedURL = await Url.findOne({ redirectURL: originalURL });
 
-  if (!existedURL) {
-    const nanoID = nanoid(5);
+      if (!existedURL) {
+        const nanoID = nanoid(5);
 
-    const entry = await Url.create({
-      shortId: nanoID,
-      redirectURL: originalURL,
-      visitHistory: [],
-      visitedCount: 0,
-    });
+        const entry = await Url.create({
+          shortId: nanoID,
+          redirectURL: originalURL,
+          visitHistory: [],
+          visitedCount: 0,
+        });
 
-    if (!entry) {
-      res.status(401).json({
-        message: "Error with DB",
+        if (!entry) {
+          res.status(401).json({
+            message: "Error with DB",
+          });
+        }
+
+        res.status(200).json({
+          message: "Saved",
+          id: entry.shortId,
+        });
+      }
+
+      res.status(200).json({
+        message: "already exists",
+        id: existedURL?.shortId,
+      });
+    } else {
+      return res.status(406).json({
+        message: "Invalid Url",
+        code: "URL_DOESNT_EXITS",
       });
     }
-
-    res.status(200).json({
-      message: "Saved",
-      id: entry.shortId,
-    });
-  }
-
-  res.status(200).json({
-    message: "already exists",
-    id: existedURL?.shortId,
   });
-
-
-
 };
 
 const linkRedirector = async (req: Request, res: Response): Promise<void> => {
