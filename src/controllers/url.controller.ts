@@ -1,12 +1,11 @@
-
 import Url from "../models/url.model";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
-  const { originalURL } = req.body;
-  if (!originalURL) {
-    res.status(400).json({
+  const { redirectURL } = req.body;
+  if (!redirectURL) {
+    return res.status(400).json({
       message: "URL is required",
     });
   }
@@ -15,28 +14,29 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
 
   const entry = await Url.create({
     shortId: nanoID,
-    redirectURL: originalURL,
+    redirectURL: redirectURL,
     visitHistory: [],
     visitedCount: 0,
   });
 
   if (!entry) {
-    res.status(401).json({
+    return res.status(401).json({
       message: "Error with DB",
     });
   }
 
   res.status(200).json({
     message: "Saved",
+    shortUrl: `http://localhost:3000/${entry.shortId}`,
     id: entry.shortId,
   });
 };
 
 const linkRedirector = async (req: Request, res: Response): Promise<any> => {
-  const { nanoID } = req.params;
+  const { nanoId } = req.params;
   const entry = await Url.findOneAndUpdate(
     {
-      nanoID,
+      shortId: nanoId,
     },
     {
       $push: {
@@ -49,14 +49,13 @@ const linkRedirector = async (req: Request, res: Response): Promise<any> => {
   );
 
   if(!entry){
-    res.status(500).json({
-      "message":"Internal Server Error"
-    })
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
   }
 
-  res.redirect(entry!.redirectURL)
-
-
+  res.redirect(entry!.redirectURL);
 };
 
 export { linkShortener, linkRedirector };
+
