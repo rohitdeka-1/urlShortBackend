@@ -22,7 +22,7 @@ A robust URL shortening service built with Node.js, Express, and TypeScript that
 
 ### Create Short URL
 ```http
-POST /api/url
+POST /url/shorten
 ```
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -74,3 +74,11 @@ npm run dev
 - `PORT` - Port number for the server (default: 3000)
 
 ## Project Structure
+src/
+├── controllers/
+│ └── url.controller.ts
+├── models/
+│ └── url.model.ts
+├── routes/
+│ └── url.routes.ts
+└── index.ts
