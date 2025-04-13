@@ -1,6 +1,8 @@
 import Url from "../models/url.model";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
+import dns from "dns";
+
 
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
@@ -10,6 +12,14 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
       message: "URL is required",
     });
   }
+
+  dns.lookup(originalURL,(err)=>{
+    if(err){
+      res.status(406).json({
+        "message" : "URL doesnt exists",
+      })
+    }
+  })
 
   const existedURL = await Url.findOne({ redirectURL: originalURL });
 
@@ -39,6 +49,9 @@ const linkShortener = async (req: Request, res: Response): Promise<any> => {
     message: "already exists",
     id: existedURL?.shortId,
   });
+
+
+
 };
 
 const linkRedirector = async (req: Request, res: Response): Promise<void> => {
