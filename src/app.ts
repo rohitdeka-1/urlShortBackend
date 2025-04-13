@@ -5,14 +5,12 @@ dotenv.config()
 const app = express();
 
 const corsOptions = {
-    
-    origin: ["https://url-shortner-frontend-nx4y.vercel.app", "https://urlshortbackend-2phu.onrender.com"],
+    origin: "https://url-shortner-frontend-nx4y.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-}
+    allowedHeaders: ["Content-Type"],
+    credentials: false,  
+  }
+  
 
 app.use(cors(corsOptions))
 
