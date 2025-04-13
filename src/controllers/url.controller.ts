@@ -4,62 +4,60 @@ import { nanoid } from "nanoid";
 
 const linkShortener = async (req: Request, res: Response): Promise<any> => {
   const { originalURL } = req.body;
+  console.log("BODY:", req.body);
   if (!originalURL) {
-    return res.status(400).json({
+    res.status(400).json({
       message: "URL is required",
     });
   }
 
   const nanoID = nanoid(5);
 
-  try {
-    const entry = await Url.create({
-      shortId: nanoID,
-      redirectURL: originalURL,
-      visitHistory: [],
-      visitedCount: 0,
-    });
+  const entry = await Url.create({
+    shortId: nanoID,
+    redirectURL: originalURL,
+    visitHistory: [],
+    visitedCount: 0,
+  });
 
-    if (!entry) {
-      return res.status(500).json({
-        message: "Error creating URL",
-      });
-    }
-
-    return res.status(200).json({
-      message: "Saved",
-      id: entry.shortId,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error creating URL",
+  if (!entry) {
+    res.status(401).json({
+      message: "Error with DB",
     });
   }
+
+  res.status(200).json({
+    message: "Saved",
+    id: entry.shortId,
+  });
 };
 
-const linkRedirector = async (req: Request, res: Response): Promise<any> => {
-  const { shortId } = req.params;
+const linkRedirector = async (req: Request, res: Response): Promise<void> => {
+  const { nanoId } = req.params;
 
-  try {
-    const entry = await Url.findOne({ shortId });
-
-    if (!entry) {
-      return res.status(404).json({
-        message: "URL not found",
-      });
+  const entry = await Url.findOneAndUpdate(
+    {
+      shortId:nanoId,
+    },
+    {
+      $push: {
+        visitHistory: [{ timeStamp: Date.now().toString() }],
+      },
+      $inc: {
+        visitedCount: 1,
+      },
     }
+  );
 
-    entry.visitHistory.push({ timeStamp: new Date().toISOString() });
-    entry.visitedCount += 1;
-    await entry.save();
 
-    return res.redirect(entry.redirectURL);
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error redirecting",
+  if(!entry){
+    res.status(404).json({
+      message: "Short URL not found"
     });
+    return;
   }
-};
 
+  res.redirect(entry.redirectURL);
+};
 export { linkShortener, linkRedirector };
 
